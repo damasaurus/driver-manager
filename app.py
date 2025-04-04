@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime, timedelta
 import csv, os
+import pytz
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# Set IST timezone
+tz_ist = pytz.timezone('Asia/Kolkata')
 
 # Utility to read CSV safely
 def read_csv(path):
@@ -13,7 +17,31 @@ def read_csv(path):
     except:
         return []
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
+def driver_portal():
+    if request.method == "POST":
+        driver = request.form.get("driver")
+        action = request.form.get("action")
+
+        if action in ["Checkin", "Checkout"]:
+            log_time(driver, action)
+
+        elif action == "Upload":
+            purpose = request.form.get("purpose")
+            amount = request.form.get("amount")
+            file = request.files["file"]
+            if file:
+                now = datetime.now(tz_ist)
+                filename = f"{now.strftime('%Y%m%d%H%M%S')}_{file.filename}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                save_expense(driver, purpose, amount, filename)
+
+        return redirect("/")
+
+    return render_template("driver.html")
+
+@app.route("/dashboard", methods=["GET"])
 def dashboard():
     logs = read_csv("data/logs.csv")
     expenses = read_csv("data/expenses.csv")
@@ -26,7 +54,7 @@ def dashboard():
             breakdown = row[3]
             salary_breakdown[name] = breakdown
 
-    today = datetime.now().date()
+    today = datetime.now(tz_ist).date()
     yesterday = today - timedelta(days=1)
     week_ago = today - timedelta(days=7)
 
@@ -46,31 +74,8 @@ def dashboard():
                            breakdowns=salary_breakdown,
                            today=today, yesterday=yesterday, week_ago=week_ago)
 
-@app.route("/driver", methods=["GET", "POST"])
-def driver_portal():
-    if request.method == "POST":
-        driver = request.form.get("driver")
-        action = request.form.get("action")
-
-        if action in ["Checkin", "Checkout"]:
-            log_time(driver, action)
-
-        elif action == "Upload":
-            purpose = request.form.get("purpose")
-            amount = request.form.get("amount")
-            file = request.files["file"]
-            if file:
-                filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                save_expense(driver, purpose, amount, filename)
-
-        return redirect("/driver")
-
-    return render_template("driver.html")
-
 def log_time(driver, action):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(tz_ist).strftime("%Y-%m-%d %H:%M:%S")
 
     with open("data/logs.csv", "a") as f:
         f.write(f"{now},{driver},{action}\n")
@@ -79,7 +84,7 @@ def log_time(driver, action):
         nf.write(f"{driver} has just {action.lower()}ed")
 
 def save_expense(driver, purpose, amount, filename):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(tz_ist).strftime("%Y-%m-%d %H:%M:%S")
     with open("data/expenses.csv", "a") as f:
         f.write(f"{now},{driver},{purpose},{amount},{filename}\n")
 

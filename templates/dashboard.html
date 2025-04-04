@@ -162,5 +162,45 @@ function showBreakdown(driver) {
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function sendNotification(title, body) {
+    if ('serviceWorker' in navigator && Notification.permission === "granted") {
+      navigator.serviceWorker.ready.then(function (reg) {
+        reg.active.postMessage({ title: title, body: body });
+      });
+    }
+  }
+</script>
+<script>
+  let lastNotification = "";
+  
+  // Function to fetch the latest notification message
+  async function checkNotificationUpdate() {
+    try {
+      const response = await fetch("/static/notification.txt", { cache: "no-store" });
+      const text = await response.text();
+  
+      // Only show if the content has changed
+      if (text && text.trim() !== lastNotification) {
+        lastNotification = text.trim();
+  
+        // Send it to the service worker
+        if ("serviceWorker" in navigator && Notification.permission === "granted") {
+          navigator.serviceWorker.ready.then(function (reg) {
+            reg.active.postMessage({
+              title: "Driver Update",
+              body: lastNotification
+            });
+          });
+        }
+      }
+    } catch (err) {
+      console.error("❌ Error fetching notification:", err);
+    }
+  }
+  
+  // Start checking every 5 seconds
+  setInterval(checkNotificationUpdate, 5000);
+  </script>  
 </body>
 </html>
