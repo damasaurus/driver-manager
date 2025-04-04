@@ -1,7 +1,7 @@
 {
   "name": "Driver Manager",
   "short_name": "Drivers",
-  "start_url": "/",
+  "start_url": "/family",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0d6efd",
