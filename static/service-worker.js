@@ -1,10 +1,13 @@
-self.addEventListener("message", function (event) {
-    const data = event.data;
-    const title = data.title || "Driver Update";
+self.addEventListener("push", function (event) {
+    const data = event.data.json();
     const options = {
       body: data.body,
-      icon: "/static/icons/icon-192.png",
+      icon: "/static/icon-192.png", // make sure this file exists
+      badge: "/static/icon-192.png"
     };
-    self.registration.showNotification(title, options);
+  
+    event.waitUntil(
+      self.registration.showNotification(data.title, options)
+    );
   });
   

@@ -163,44 +163,46 @@ function showBreakdown(driver) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  function sendNotification(title, body) {
-    if ('serviceWorker' in navigator && Notification.permission === "granted") {
-      navigator.serviceWorker.ready.then(function (reg) {
-        reg.active.postMessage({ title: title, body: body });
-      });
+  const publicVapidKey = "BBjr14hDEc4Gk2hZKnttyy8tLXjC8Kbpk558Gj4kpbX_s5L1w-pXkCWDigQIsmTvggDcK0e8zJ6JtV7EQnQ=";
+
+  if ('serviceWorker' in navigator) {
+    register().catch(err => console.error("Push registration error:", err));
+  }
+
+  async function register() {
+    const registration = await navigator.serviceWorker.register('/static/service-worker.js', {
+      scope: '/'
+    });
+
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+    });
+
+    await fetch("/subscribe", {
+      method: "POST",
+      body: JSON.stringify(subscription),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    console.log("Push subscription complete.");
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
     }
+    return outputArray;
   }
 </script>
-<script>
-  let lastNotification = "";
-  
-  // Function to fetch the latest notification message
-  async function checkNotificationUpdate() {
-    try {
-      const response = await fetch("/static/notification.txt", { cache: "no-store" });
-      const text = await response.text();
-  
-      // Only show if the content has changed
-      if (text && text.trim() !== lastNotification) {
-        lastNotification = text.trim();
-  
-        // Send it to the service worker
-        if ("serviceWorker" in navigator && Notification.permission === "granted") {
-          navigator.serviceWorker.ready.then(function (reg) {
-            reg.active.postMessage({
-              title: "Driver Update",
-              body: lastNotification
-            });
-          });
-        }
-      }
-    } catch (err) {
-      console.error("❌ Error fetching notification:", err);
-    }
-  }
-  
-  // Start checking every 5 seconds
-  setInterval(checkNotificationUpdate, 5000);
-  </script>  
 </body>
 </html>
