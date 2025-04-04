@@ -54,5 +54,27 @@ document.getElementById('darkToggle').addEventListener('change', function () {
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.register('/static/service-worker.js')
+      .then(function(reg) {
+        console.log("✅ Service Worker registered:", reg);
+      })
+      .catch(function(err) {
+        console.error("❌ Service Worker registration failed:", err);
+      });
+  }
+</script>
+<script>
+  if ('Notification' in window && navigator.serviceWorker) {
+    Notification.requestPermission().then(function(permission) {
+      if (permission === "granted") {
+        console.log("✅ Notification permission granted");
+      } else {
+        console.warn("❌ Notification permission denied");
+      }
+    });
+  }
+</script>
 </body>
 </html>

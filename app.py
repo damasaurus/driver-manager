@@ -105,8 +105,15 @@ def family_dashboard():
 
 def log_time(driver, action):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Save check-in/check-out log
     with open("data/logs.csv", "a") as f:
         f.write(f"{now},{driver},{action}\n")
+
+    # Save a notification message that will be picked up by the frontend
+    with open("static/notification.txt", "w") as nf:
+        nf.write(f"{driver} has just {action.lower()}ed")
+
 
 def save_expense(driver, purpose, amount, filename):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
