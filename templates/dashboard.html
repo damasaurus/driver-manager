@@ -16,6 +16,7 @@
       background: #f4f4f4;
       font-family: 'Segoe UI', sans-serif;
       color: #333;
+      padding-bottom: 60px;
     }
     .early-checkin { background-color: #d4edda !important; }
     .late-checkout { background-color: #fff3cd !important; }
@@ -52,7 +53,10 @@
       transition: 0.3s ease;
     }
     @media (max-width: 768px) {
-      body { font-size: 0.88rem; }
+      body { font-size: 0.9rem; }
+      .table th, .table td { font-size: 0.85rem; padding: 0.3rem; }
+      .section-title { font-size: 1rem; }
+      h6 { font-size: 1rem; }
     }
   </style>
 </head>
@@ -72,6 +76,7 @@
         {% for driver in ['Sitaram', 'Nikesh', 'Sagar'] %}
         <div class="col-12 col-md-4 mb-3">
           <h6 class="fw-bold driver-tag-{{ driver|lower }}">👤 {{ driver }}</h6>
+          <div class="table-responsive">
           <table class="table table-sm table-bordered">
             <thead class="table-light"><tr><th>Date</th><th>Action</th></tr></thead>
             <tbody>
@@ -85,6 +90,7 @@
               {% endfor %}
             </tbody>
           </table>
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -94,6 +100,7 @@
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <div class="section-title">💸 Reimbursements (Past 7 Days)</div>
+      <div class="table-responsive">
       <table class="table table-sm table-hover">
         <thead class="table-light"><tr><th>Date</th><th>Driver</th><th>Purpose</th><th>Amount</th><th>Image</th></tr></thead>
         <tbody>
@@ -108,6 +115,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 
@@ -115,6 +123,7 @@
     <div class="card-body">
       <div class="section-title">💼 Salary Summary</div>
       {% if salary %}
+      <div class="table-responsive">
       <table class="table table-sm">
         <thead class="table-light"><tr><th>Driver</th><th>Month</th><th>Net Pay</th><th>Breakdown</th></tr></thead>
         <tbody>
@@ -131,6 +140,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
       {% else %}
         <p class="text-muted">No salary data available yet.</p>
       {% endif %}
