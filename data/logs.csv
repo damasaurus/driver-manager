@@ -1,26 +1,47 @@
-2025-03-01T06:45:00+05:30,Sitaram,Checkin
-2025-03-01T19:45:00+05:30,Sitaram,Checkout
-2025-03-02T09:00:00+05:30,Nikesh,Checkin
-2025-03-02T18:00:00+05:30,Nikesh,Checkout
-2025-03-03T08:30:00+05:30,Sagar,Checkin
-2025-03-03T21:45:00+05:30,Sagar,Checkout
-2025-03-04T07:00:00+05:30,Sitaram,Checkin
-2025-03-04T18:30:00+05:30,Sitaram,Checkout
-2025-03-05T09:30:00+05:30,Nikesh,Checkin
-2025-03-05T20:00:00+05:30,Nikesh,Checkout
-2025-03-06T09:00:00+05:30,Sagar,Checkin
-2025-03-06T22:00:00+05:30,Sagar,Checkout
-2025-03-09T06:00:00+05:30,Sitaram,Checkin
-2025-03-09T19:00:00+05:30,Sitaram,Checkout
-2025-03-10T10:00:00+05:30,Nikesh,Checkin
-2025-03-10T18:00:00+05:30,Nikesh,Checkout
-2025-03-16T07:45:00+05:30,Sagar,Checkin
-2025-03-16T19:30:00+05:30,Sagar,Checkout
-2025-03-17T08:00:00+05:30,Sitaram,Checkin
-2025-03-17T22:00:00+05:30,Sitaram,Checkout
-2025-03-23T10:30:00+05:30,Sagar,Checkin
-2025-03-23T17:00:00+05:30,Sagar,Checkout
-2025-03-24T06:30:00+05:30,Nikesh,Checkin
-2025-03-24T19:00:00+05:30,Nikesh,Checkout
-2025-03-30T08:45:00+05:30,Sitaram,Checkin
-2025-03-30T21:45:00+05:30,Sitaram,Checkout
+2025-03-01 09:15:00,Sitaram,Checkin
+2025-03-01 19:45:00,Sitaram,Checkout
+2025-03-01 09:30:00,Nikesh,Checkin
+2025-03-01 19:30:00,Nikesh,Checkout
+2025-03-01 08:00:00,Sagar,Checkin
+2025-03-01 20:45:00,Sagar,Checkout
+
+2025-03-02 09:00:00,Sitaram,Checkin
+2025-03-02 18:30:00,Sitaram,Checkout
+2025-03-02 08:45:00,Nikesh,Checkin
+2025-03-02 19:45:00,Nikesh,Checkout
+2025-03-02 10:00:00,Sagar,Checkin
+2025-03-02 17:00:00,Sagar,Checkout
+
+2025-03-03 07:30:00,Sitaram,Checkin
+2025-03-03 20:30:00,Sitaram,Checkout
+2025-03-03 09:30:00,Nikesh,Checkin
+2025-03-03 19:00:00,Nikesh,Checkout
+2025-03-03 08:15:00,Sagar,Checkin
+2025-03-03 20:00:00,Sagar,Checkout
+
+2025-03-04 09:00:00,Sitaram,Checkin
+2025-03-04 22:00:00,Sitaram,Checkout
+2025-03-04 10:00:00,Nikesh,Checkin
+2025-03-04 17:30:00,Nikesh,Checkout
+2025-03-04 09:45:00,Sagar,Checkin
+2025-03-04 18:00:00,Sagar,Checkout
+
+2025-03-05,LEAVE,Sitaram,
+2025-03-05 09:15:00,Nikesh,Checkin
+2025-03-05 19:30:00,Nikesh,Checkout
+2025-03-05 07:00:00,Sagar,Checkin
+2025-03-05 20:30:00,Sagar,Checkout
+
+2025-03-06 06:45:00,Sitaram,Checkin
+2025-03-06 20:15:00,Sitaram,Checkout
+2025-03-06 09:30:00,Nikesh,Checkin
+2025-03-06 19:30:00,Nikesh,Checkout
+2025-03-06 09:00:00,Sagar,Checkin
+2025-03-06 22:00:00,Sagar,Checkout
+
+2025-03-07 09:00:00,Sitaram,Checkin
+2025-03-07 19:15:00,Sitaram,Checkout
+2025-03-07 09:30:00,Nikesh,Checkin
+2025-03-07 19:00:00,Nikesh,Checkout
+2025-03-07 09:15:00,Sagar,Checkin
+2025-03-07 20:00:00,Sagar,Checkout
