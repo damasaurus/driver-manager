@@ -15,7 +15,7 @@ INDIA_TZ = timezone(timedelta(hours=5, minutes=30))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
-@app.route("/driver", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def driver_portal():
     if request.method == "POST":
         driver = request.form.get("driver")
