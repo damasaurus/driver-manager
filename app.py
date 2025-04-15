@@ -1,106 +1,127 @@
 from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime, timedelta, timezone
 import os
 import csv
+from datetime import datetime, timedelta
+import pytz
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads'
-LOG_FILE = 'data/logs.csv'
-EXPENSE_FILE = 'data/expenses.csv'
-SALARY_FILE = 'data/salary.csv'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-INDIA_TZ = timezone(timedelta(hours=5, minutes=30))
-
-# Ensure upload and data folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs('data', exist_ok=True)
 
-@app.route("/", methods=["GET", "POST"])
-def driver_portal():
-    if request.method == "POST":
-        driver = request.form.get("driver")
-        action = request.form.get("action")
+# === Utility ===
+def get_ist_now():
+    return datetime.now(pytz.timezone('Asia/Kolkata'))
 
-        if action in ["checkin", "checkout"]:
-            log_time(driver, action.capitalize())
+# === Ensure CSV files exist ===
+for filename in ['logs.csv', 'expenses.csv', 'salary.csv']:
+    if not os.path.exists(filename):
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            if filename == 'logs.csv':
+                writer.writerow(['Timestamp', 'Driver', 'Action'])
+            elif filename == 'expenses.csv':
+                writer.writerow(['Timestamp', 'Driver', 'Purpose', 'Amount', 'Filename'])
+            elif filename == 'salary.csv':
+                writer.writerow(['Driver', 'Month', 'Net Pay'])
 
-        return redirect(url_for("driver_portal"))
+# === ROUTES ===
 
-    return render_template("driver.html")
+@app.route('/')
+def driver():
+    return render_template('driver.html')
+
+@app.route('/dashboard')
+def dashboard():
+    logs = []
+    expenses = []
+    breakdowns = {}
+    salary = []
+
+    # Load logs
+    try:
+        with open('logs.csv', 'r') as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                time = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
+                logs.append((time, row[1], row[2]))
+    except:
+        logs = []
+
+    # Load expenses
+    try:
+        with open('expenses.csv', 'r') as f:
+            reader = csv.reader(f)
+            next(reader)
+            for row in reader:
+                time = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f')
+                expenses.append((time, row[1], row[2], row[3], row[4]))
+    except:
+        expenses = []
+
+    # Load salary
+    try:
+        with open('salary.csv', 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                salary.append(row)
+    except:
+        salary = []
+
+    # Fake breakdowns for now
+    for row in salary:
+        if row[0] != 'Driver':
+            breakdowns[row[0]] = f"{row[0]} Salary for {row[1]}: ₹{row[2]} (detailed breakdown coming soon)"
+
+    week_ago = datetime.now() - timedelta(days=7)
+    today = datetime.now().date()
+    yesterday = today - timedelta(days=1)
+
+    return render_template(
+        'dashboard.html',
+        logs=logs,
+        expenses=expenses,
+        salary=salary,
+        breakdowns=breakdowns,
+        week_ago=week_ago.date(),
+        today=today,
+        yesterday=yesterday
+    )
+
+@app.route('/driver', methods=['POST'])
+def log_time():
+    driver = request.form['driver']
+    action = request.form['action']  # checkin or checkout
+    now = get_ist_now()
+
+    with open('logs.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([now, driver, action.capitalize()])
+
+    return redirect(url_for('driver'))
 
 @app.route('/upload', methods=['POST'])
 def upload_expense():
-    from werkzeug.utils import secure_filename
-    import pytz
-
     driver = request.form['driver']
     purpose = request.form['purpose']
     amount = request.form['amount']
     file = request.files['file']
+    now = get_ist_now()
 
     if file:
-        # Save file to static/uploads/
         filename = secure_filename(file.filename)
-        upload_path = os.path.join('static/uploads', filename)
-        file.save(upload_path)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
 
-        # Get current time in IST
-        india_time = datetime.now(pytz.timezone('Asia/Kolkata'))
-
-        # Append to expenses.csv
         with open('expenses.csv', 'a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([india_time, driver, purpose, amount, filename])
+            writer.writerow([now, driver, purpose, amount, filename])
 
         return redirect(url_for('driver'))
 
     return "Upload failed", 400
 
-@app.route("/family/dashboard")
-def family_dashboard():
-    logs, expenses = [], []
-
-    try:
-        with open(LOG_FILE, newline="") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                try:
-                    dt = datetime.fromisoformat(row[0]).astimezone(INDIA_TZ)
-                    logs.append([dt, row[1], row[2]])
-                except:
-                    continue
-    except FileNotFoundError:
-        pass
-
-    try:
-        with open(EXPENSE_FILE, newline="") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                try:
-                    dt = datetime.fromisoformat(row[0]).astimezone(INDIA_TZ)
-                    expenses.append([dt, row[1], row[2], row[3], row[4]])
-                except:
-                    continue
-    except FileNotFoundError:
-        pass
-
-    salary, breakdowns = [], {}
-    try:
-        with open(SALARY_FILE, newline="") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if row and row[0] != "Driver":
-                    salary.append(row)
-                    breakdowns[row[0]] = row[3]
-    except FileNotFoundError:
-        pass
-
-    today = datetime.now(INDIA_TZ).date()
-    yesterday = today - timedelta(days=1)
-    week_ago = today - timedelta(days=7)
-
-    return render_template("dashboard.html", logs=logs, expenses=expenses, salary=salary, breakdowns=breakdowns, today=today, yesterday=yesterday, week_ago=week_ago)
-
-# ---- Run App ----
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5050)
+# === Run ===
+if __name__ == '__main__':
+    app.run(debug=True)
