@@ -28,32 +28,33 @@ def driver_portal():
 
     return render_template("driver.html")
 
-@app.route("/upload", methods=["POST"])
+@app.route('/upload', methods=['POST'])
 def upload_expense():
-    driver = request.form.get("driver")
-    purpose = request.form.get("purpose")
-    amount = request.form.get("amount")
-    file = request.files["file"]
+    from werkzeug.utils import secure_filename
+    import pytz
+
+    driver = request.form['driver']
+    purpose = request.form['purpose']
+    amount = request.form['amount']
+    file = request.files['file']
 
     if file:
-        filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        save_expense(driver, purpose, amount, filename)
+        # Save file to static/uploads/
+        filename = secure_filename(file.filename)
+        upload_path = os.path.join('static/uploads', filename)
+        file.save(upload_path)
 
-    return redirect(url_for("driver_portal"))
+        # Get current time in IST
+        india_time = datetime.now(pytz.timezone('Asia/Kolkata'))
 
-def log_time(driver, action):
-    now = datetime.now(INDIA_TZ)
-    with open(LOG_FILE, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([now.isoformat(), driver, action])
+        # Append to expenses.csv
+        with open('expenses.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([india_time, driver, purpose, amount, filename])
 
-def save_expense(driver, purpose, amount, filename):
-    now = datetime.now(INDIA_TZ)
-    with open(EXPENSE_FILE, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([now.isoformat(), driver, purpose, amount, filename])
+        return redirect(url_for('driver'))
+
+    return "Upload failed", 400
 
 @app.route("/family/dashboard")
 def family_dashboard():
